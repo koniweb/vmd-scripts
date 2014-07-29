@@ -13,9 +13,10 @@ lappend functionlist reload
 proc reload {whichmolecules} {
     # do this for all molecules
     foreach mid [molinfo $whichmolecules] {
-	# set filename and type
+	# set filename and type and periodic settings
 	lassign [ lindex [molinfo $mid get filename] 0] filename
 	lassign [ lindex [molinfo $mid get filetype] 0] filetype
+	set fileperiodic [ molinfo $mid get {a b c alpha beta gamma} ] 
 	# save view
 	set view [molinfo $mid get {center_matrix rotate_matrix scale_matrix global_matrix}]
 	# save Representations
@@ -43,5 +44,7 @@ proc reload {whichmolecules} {
 	    mol addrep $mid
 	    mol modstyle $ir $mid [lindex $rep $ir 0]
 	}
+	# set periodic settings
+	molinfo $mid set {a b c alpha beta gamma} $fileperiodic
     }	
 }
