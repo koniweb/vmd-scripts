@@ -11,6 +11,10 @@ set functionlist {}
 # read extended xyz file
 lappend functionlist exyz_read_data
 proc exyz_read_data {filename molID} {
+    # include a $aX $aY $aZ b $bX $bY $bZ c $cX $cY $cZ
+    # and any other keywords which are read in e.g. charge
+    # example comment line: a 1.0 0.0 0.0 b 0.0 1.0 0.0 c 0.0 0.0 1.0 charge
+    global M_PI
     # list available keywords via
     # atomselect keywords
     set frm -1
@@ -36,13 +40,58 @@ proc exyz_read_data {filename molID} {
 	    gets $fh comment
 	    incr linecnt
 	    set commands [regexp -inline -all -- {\S+} $comment]
+	    # get number of commands
 	    set ncommands [llength $commands]
-	    # create list for every command
+	    # create list for every command and 
+	    #check if comment starts with vector definition
 	    for {set ccnt 0} {$ccnt<$ncommands} {incr ccnt} { 
-		set l[lindex $commands $ccnt] {}
+		if {[lindex $commands $ccnt] == "a"} {
+		    set a [list [lindex $commands $ccnt+1] \
+    			       [lindex $commands $ccnt+2]  \
+			       [lindex $commands $ccnt+3] ]
+		    # delete a data
+		    set commands [lreplace $commands $ccnt $ccnt+3]
+		    incr ccnt -1
+		    set ncommands [llength $commands]
+		} elseif {[lindex $commands $ccnt] == "b"} {
+		    set b [list [lindex $commands $ccnt+1] \
+			       [lindex $commands $ccnt+2]  \
+			       [lindex $commands $ccnt+3] ]
+		    # delete a data
+		    set commands [lreplace $commands $ccnt $ccnt+3]
+		    incr ccnt -1
+		    set ncommands [llength $commands]		    
+		} elseif {[lindex $commands $ccnt] == "c"} {
+		    set c [list [lindex $commands $ccnt+1] \
+			       [lindex $commands $ccnt+2]  \
+			       [lindex $commands $ccnt+3] ]
+		    # delete a data
+		    set commands [lreplace $commands $ccnt $ccnt+3]
+		    incr ccnt -1
+		    set ncommands [llength $commands]		    
+		} else {
+		    set l[lindex $commands $ccnt] {}
+		    puts [lindex $commands $ccnt]
+		}
 	    }		  
 	} 
-	
+
+	# calculate lengths and angles
+	set la [ veclength $a ]
+	set lb [ veclength $b ]
+	set lc [ veclength $c ]
+	set alpha [ expr acos( [vecdot $b $c] / $lb / $lc ) *180/$M_PI ]	
+	set beta  [ expr acos( [vecdot $a $c] / $la / $lc ) *180/$M_PI ]
+	set gamma [ expr acos( [vecdot $a $b] / $la / $lb ) *180/$M_PI ]
+	puts "... vectors set as $la $lb $lc $alpha $beta $gamma"
+	# set vectors
+	molinfo $molID set a $la
+	molinfo $molID set b $lb
+	molinfo $molID set c $lc
+	molinfo $molID set alpha $alpha
+	molinfo $molID set beta  $beta
+	molinfo $molID set gamma $gamma
+
 	# Read additional data
 	set atmcnt 0
 	for {set i 0} {$i<$numatms} {incr i} {
