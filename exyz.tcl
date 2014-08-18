@@ -71,27 +71,30 @@ proc exyz_read_data {filename molID} {
 		    set ncommands [llength $commands]		    
 		} else {
 		    set l[lindex $commands $ccnt] {}
-		    puts [lindex $commands $ccnt]
 		}
 	    }		  
 	} 
 
 	# calculate lengths and angles
-	set la [ veclength $a ]
-	set lb [ veclength $b ]
-	set lc [ veclength $c ]
-	set alpha [ expr acos( [vecdot $b $c] / $lb / $lc ) *180/$M_PI ]	
-	set beta  [ expr acos( [vecdot $a $c] / $la / $lc ) *180/$M_PI ]
-	set gamma [ expr acos( [vecdot $a $b] / $la / $lb ) *180/$M_PI ]
-	puts "... vectors set as $la $lb $lc $alpha $beta $gamma"
-	# set vectors
-	molinfo $molID set a $la
-	molinfo $molID set b $lb
-	molinfo $molID set c $lc
-	molinfo $molID set alpha $alpha
-	molinfo $molID set beta  $beta
-	molinfo $molID set gamma $gamma
-
+	if { [info exists a] &&  [info exists b] && [info exists c] } {
+	    puts "yes"
+	    set la [ veclength $a ]
+	    set lb [ veclength $b ]
+	    set lc [ veclength $c ]
+	    set alpha [ expr acos( [vecdot $b $c] / $lb / $lc ) *180/$M_PI ]	
+	    set beta  [ expr acos( [vecdot $a $c] / $la / $lc ) *180/$M_PI ]
+	    set gamma [ expr acos( [vecdot $a $b] / $la / $lb ) *180/$M_PI ]
+	    puts "... vectors set as $la $lb $lc $alpha $beta $gamma"
+	    # set vectors
+	    molinfo $molID set a $la
+	    molinfo $molID set b $lb
+	    molinfo $molID set c $lc
+	    molinfo $molID set alpha $alpha
+	    molinfo $molID set beta  $beta
+	    molinfo $molID set gamma $gamma
+	} else {
+	    puts "... vectors not defined or error in vector definition"
+	}
 	# Read additional data
 	set atmcnt 0
 	for {set i 0} {$i<$numatms} {incr i} {
