@@ -43,8 +43,10 @@ proc exyz_read_data {filename molID} {
 	    # get number of commands
 	    set ncommands [llength $commands]
 	    # create list for every command and 
-	    #check if comment starts with vector definition
+	    #   check if comment starts with vector definition
+	    #   check if comment start with Energy of structure
 	    for {set ccnt 0} {$ccnt<$ncommands} {incr ccnt} { 
+		# read a data
 		if {[lindex $commands $ccnt] == "a"} {
 		    set a [list [lindex $commands $ccnt+1] \
     			       [lindex $commands $ccnt+2]  \
@@ -53,22 +55,31 @@ proc exyz_read_data {filename molID} {
 		    set commands [lreplace $commands $ccnt $ccnt+3]
 		    incr ccnt -1
 		    set ncommands [llength $commands]
+		# read b data
 		} elseif {[lindex $commands $ccnt] == "b"} {
 		    set b [list [lindex $commands $ccnt+1] \
 			       [lindex $commands $ccnt+2]  \
 			       [lindex $commands $ccnt+3] ]
-		    # delete a data
+		    # delete b data
 		    set commands [lreplace $commands $ccnt $ccnt+3]
 		    incr ccnt -1
 		    set ncommands [llength $commands]		    
+		# read c data
 		} elseif {[lindex $commands $ccnt] == "c"} {
 		    set c [list [lindex $commands $ccnt+1] \
 			       [lindex $commands $ccnt+2]  \
 			       [lindex $commands $ccnt+3] ]
-		    # delete a data
+		    # delete c data
 		    set commands [lreplace $commands $ccnt $ccnt+3]
 		    incr ccnt -1
 		    set ncommands [llength $commands]		    
+	        # read energy data
+		} elseif {[lindex $commands $ccnt] == "E"} {
+		    # delete E data
+		    set commands [lreplace $commands $ccnt $ccnt+1]
+		    incr ccnt -1
+		    set ncommands [llength $commands]		    
+		# set list for command
 		} else {
 		    set l[lindex $commands $ccnt] {}
 		}
