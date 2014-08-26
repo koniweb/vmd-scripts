@@ -73,6 +73,12 @@ proc exyz_read_data {filename molID} {
 		    set commands [lreplace $commands $ccnt $ccnt+3]
 		    incr ccnt -1
 		    set ncommands [llength $commands]		    
+		# read offset data
+		} elseif {[lindex $commands $ccnt] == "off"} {
+		    # delete offset data
+		    set commands [lreplace $commands $ccnt $ccnt+3]
+		    incr ccnt -1
+		    set ncommands [llength $commands]		    
 	        # read energy data
 		} elseif {[lindex $commands $ccnt] == "E"} {
 		    # delete E data
