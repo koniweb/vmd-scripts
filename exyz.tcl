@@ -94,7 +94,6 @@ proc exyz_read_data {filename molID} {
 
 	# calculate lengths and angles
 	if { [info exists a] &&  [info exists b] && [info exists c] } {
-	    puts "yes"
 	    set la [ veclength $a ]
 	    set lb [ veclength $b ]
 	    set lc [ veclength $c ]
