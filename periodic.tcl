@@ -37,6 +37,35 @@ proc periodic {a b c alpha beta gamma {number 1} {direction ""} } {
     }
 }
 
+# show periodic for all representations of all molecules
+lappend functionlist boxxyz
+proc boxxyz { {a {}} {b {}} {c {}} {whichmolecules "top"} } {
+    global M_PI
+    # set vectors orthogonal standart if not set
+    if {[veclength $a]==0} { set a {1.0 0.0 0.0}}
+    if {[veclength $b]==0} { set b {0.0 1.0 0.0}}
+    if {[veclength $c]==0} { set c {0.0 0.0 1.0}}
+    # calculate lengths and angles and set those
+    set la [ veclength $a ]
+    set lb [ veclength $b ]
+    set lc [ veclength $c ]
+    set alpha [ expr acos( [vecdot $b $c] / $lb / $lc ) *180/$M_PI ]
+    set beta  [ expr acos( [vecdot $a $c] / $la / $lc ) *180/$M_PI ]
+    set gamma [ expr acos( [vecdot $a $b] / $la / $lb ) *180/$M_PI ]
+    puts "... vectors set as $la $lb $lc $alpha $beta $gamma"
+    # do this for all molecules                                                                                     
+    foreach mid [molinfo $whichmolecules] {
+	# set vectors
+	molinfo $mid set a $la
+	molinfo $mid set b $lb
+	molinfo $mid set c $lc
+	molinfo $mid set alpha $alpha
+	molinfo $mid set beta  $beta
+	molinfo $mid set gamma $gamma
+    }
+    pbc box_draw
+}
+
 # creates new molecule with more atoms to get bonds correctly
 lappend functionlist periodic_mult
 proc periodic_mult {molID nx ny nz {a 0} {b 0} {c 0} {alpha 0} {beta 0} {gamma 0}} {
